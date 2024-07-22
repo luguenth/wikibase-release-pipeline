@@ -5,8 +5,12 @@ services:
   # A. CORE WIKIBASE SUITE SERVICES
   # --------------------------------------------------
 
-  wikibase:
-    image: wikibase/wikibase:1
+  mediawiki:
+    build:
+      context: .
+      dockerfile: docker/mediawiki_with_composer.Dockerfile
+      args:
+        MW_VERSION: $MW_VERSION
     depends_on:
       mysql:
         condition: service_healthy
@@ -15,12 +19,12 @@ services:
       - 8880:80
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.wikibase.rule=Host(`${WIKIBASE_PUBLIC_HOST}`)"
-      - "traefik.http.routers.wikibase.entrypoints=websecure"
-      - "traefik.http.routers.wikibase.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.mediawiki.rule=Host(`${WIKIBASE_PUBLIC_HOST}`)"
+      - "traefik.http.routers.mediawiki.entrypoints=websecure"
+      - "traefik.http.routers.mediawiki.tls.certresolver=letsencrypt"
     volumes:
       - ./config:/config
-      - wikibase-image-data:/var/www/html/images
+      - mediawiki-image-data:/var/www/html/images
       - quickstatements-data:/quickstatements/data
     environment:
       MW_ADMIN_NAME: ${MW_ADMIN_NAME}
@@ -42,11 +46,11 @@ services:
     image: wikibase/wikibase:1
     command: /jobrunner-entrypoint.sh
     depends_on:
-      wikibase:
+      mediawiki:
         condition: service_healthy
     restart: unless-stopped
     volumes_from:
-      - wikibase
+      - mediawiki
 
   mysql:
     image: mariadb:10.11
@@ -88,7 +92,7 @@ services:
     image: wikibase/wdqs:1
     command: /runBlazegraph.sh
     depends_on:
-      wikibase:
+      mediawiki:
         condition: service_healthy
     restart: unless-stopped
     # Set number of files ulimit high enough, otherwise blazegraph will abort with:
@@ -149,7 +153,7 @@ services:
   quickstatements:
     image: wikibase/quickstatements:1
     depends_on:
-      wikibase:
+      mediawiki:
         condition: service_healthy
     restart: unless-stopped
     ports:
@@ -201,7 +205,7 @@ services:
 
 volumes:
   # A. CORE WIKIBASE SUITE SERVICES DATA
-  wikibase-image-data:
+  mediawiki-image-data:
   mysql-data:
   # B. EXTRA WIKIBASE SUITE SERVICES DATA
   wdqs-data:

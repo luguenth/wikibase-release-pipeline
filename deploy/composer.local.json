@@ -1,0 +1,56 @@
+{
+    "name": "osl/swb-glossary",
+    "type": "project",
+    "description": "A semantic wikibase docker setup",
+    "license": "AFL-3.0",
+    "minimum-stability": "dev",
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "baillyk/semantic-wikibase",
+                "version": "0.1",
+                "type": "mediawiki-extension",
+                "source": {
+                    "url": "https://github.com/baillyk/SemanticWikibase.git",
+                    "type": "git",
+                    "reference": "master"
+                },
+                "require": {
+                    "php": ">=7.4",
+                    "composer/installers": "^2|^1.0.1"
+                },
+                "require-dev": {
+                    "vimeo/psalm": "dev-master",
+                    "phpstan/phpstan": "dev-master"
+                }
+            }
+        }
+    ],
+    "require": {
+        "php": ">=7.4.3",
+        "mediawiki/page-forms": "5.6.x",
+        "mediawiki/semantic-media-wiki": "3.2.x",
+        "mediawiki/semantic-result-formats": "4.0.x",
+        "mediawiki/maps": "~10.1",
+        "professional-wiki/semantic-wikibase": "*",
+        "professional-wiki/network": "~2.0"
+    },
+    "config": {
+        "apcu-autoloader": true,
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/installers": true
+        }
+    },
+    "extra": {
+        "merge-plugin": {
+            "include": [
+                "extensions/*/composer.json",
+                "skins/*/composer.json"
+            ]
+        }
+    }
+}
