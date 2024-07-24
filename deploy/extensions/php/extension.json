@@ -1,0 +1,8 @@
+{
+    "type": "extension",
+    "comment": "composer",
+    "source": "php",
+    "path": ">=7.4.3",
+    "version": "",
+    "custom_name": ""
+}

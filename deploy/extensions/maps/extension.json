@@ -1,0 +1,8 @@
+{
+    "type": "extension",
+    "comment": "composer",
+    "source": "mediawiki/maps",
+    "path": "~10.1",
+    "version": "",
+    "custom_name": ""
+}

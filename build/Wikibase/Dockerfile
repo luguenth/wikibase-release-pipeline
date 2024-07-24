@@ -12,15 +12,15 @@ SHELL ["/bin/bash", "-exu", "-c"]
 # System dependencies
 RUN apt-get update; \
     apt-get install -y --no-install-recommends \
-        git \
-        gettext-base \
-        librsvg2-bin \
-        imagemagick \
-        # Required for SyntaxHighlighting
-        python3 \
-        # Required for Scribunto
-        lua5.1 \
-        ; \
+    git \
+    gettext-base \
+    librsvg2-bin \
+    imagemagick \
+    # Required for SyntaxHighlighting
+    python3 \
+    # Required for Scribunto
+    lua5.1 \
+    ; \
     rm -rf /var/lib/apt/lists/*
 
 # Install the PHP extensions we need
@@ -29,36 +29,36 @@ RUN savedAptMark="$(apt-mark showmanual)"; \
     \
     apt-get update; \
     apt-get install -y --no-install-recommends \
-        libicu-dev \
-        libonig-dev \
-        libbz2-dev=1.* \
-        ; \
+    libicu-dev \
+    libonig-dev \
+    libbz2-dev=1.* \
+    ; \
     \
     docker-php-ext-install -j "$(nproc)" \
-        bz2 \
-        calendar \
-        intl \
-        mbstring \
-        mysqli \
-        opcache \
-        ; \
+    bz2 \
+    calendar \
+    intl \
+    mbstring \
+    mysqli \
+    opcache \
+    ; \
     \
     pecl install APCu-5.1.21; \
-        docker-php-ext-enable \
-        apcu \
-        ; \
+    docker-php-ext-enable \
+    apcu \
+    ; \
     rm -r /tmp/pear; \
     \
     # reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
     apt-mark auto '.*' > /dev/null; \
     apt-mark manual $savedAptMark; \
     ldd "$(php -r 'echo ini_get("extension_dir");')"/*.so \
-        | awk '/=>/ { print $3 }' \
-        | sort -u \
-        | xargs -r dpkg-query -S \
-        | cut -d: -f1 \
-        | sort -u \
-        | xargs -rt apt-mark manual; \
+    | awk '/=>/ { print $3 }' \
+    | sort -u \
+    | xargs -r dpkg-query -S \
+    | cut -d: -f1 \
+    | sort -u \
+    | xargs -rt apt-mark manual; \
     \
     apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
     rm -rf /var/lib/apt/lists/*
@@ -115,49 +115,66 @@ RUN git clone https://gerrit.wikimedia.org/r/mediawiki/extensions/Wikibase /var/
     find /var/www/html/extensions/Wikibase -name ".git*" -exec rm -rf {} +
 
 ARG ALL_EXTENSIONS="Babel,cldr,CirrusSearch,ConfirmEdit,Elastica,EntitySchema,Nuke,OAuth,Scribunto,SyntaxHighlight_GeSHi,UniversalLanguageSelector,VisualEditor,WikibaseCirrusSearch,WikibaseManifest"
-ARG BABEL_COMMIT
-ARG CLDR_COMMIT
-ARG CIRRUSSEARCH_COMMIT
-ARG CONFIRMEDIT_COMMIT
-ARG ELASTICA_COMMIT
-ARG ENTITYSCHEMA_COMMIT
-ARG NUKE_COMMIT
-ARG OAUTH_COMMIT
-ARG SCRIBUNTO_COMMIT
-ARG SYNTAXHIGHLIGHT_GESHI_COMMIT
-ARG UNIVERSALLANGUAGESELECTOR_COMMIT
-ARG VISUALEDITOR_COMMIT
-ARG WIKIBASECIRRUSSEARCH_COMMIT
-ARG WIKIBASEMANIFEST_COMMIT
-ARG WIKIBASEEDTF_COMMIT
-ARG WIKIBASELOCALMEDIA_COMMIT
+ARG BABEL_COMMIT=${WIKIBASE_COMMIT}
+ARG CLDR_COMMIT=${WIKIBASE_COMMIT}
+ARG CIRRUSSEARCH_COMMIT=${WIKIBASE_COMMIT}
+ARG CONFIRMEDIT_COMMIT=${WIKIBASE_COMMIT}
+ARG ELASTICA_COMMIT=${WIKIBASE_COMMIT}
+ARG ENTITYSCHEMA_COMMIT=${WIKIBASE_COMMIT}
+ARG NUKE_COMMIT=${WIKIBASE_COMMIT}
+ARG OAUTH_COMMIT=${WIKIBASE_COMMIT}
+ARG SCRIBUNTO_COMMIT=${WIKIBASE_COMMIT}
+ARG SYNTAXHIGHLIGHT_GESHI_COMMIT=${WIKIBASE_COMMIT}
+ARG UNIVERSALLANGUAGESELECTOR_COMMIT=${WIKIBASE_COMMIT}
+ARG VISUALEDITOR_COMMIT=${WIKIBASE_COMMIT}
+ARG WIKIBASECIRRUSSEARCH_COMMIT=${WIKIBASE_COMMIT}
+ARG WIKIBASEMANIFEST_COMMIT=${WIKIBASE_COMMIT}
+ARG WIKIBASEEDTF_COMMIT=${WIKIBASE_COMMIT}
+ARG WIKIBASELOCALMEDIA_COMMIT=${WIKIBASE_COMMIT}
 
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
-RUN set -x; \
-    IFS=',' read -ra EXTENSIONS <<< ${ALL_EXTENSIONS}; \
+# Set shell options to print each command before executing it
+RUN set -x;
+
+# Read the extensions from the environment variable ALL_EXTENSIONS
+RUN IFS=',' read -ra EXTENSIONS <<< ${ALL_EXTENSIONS}; \
     for EXTENSION in "${EXTENSIONS[@]}"; do \
-        rm -rf "extensions/${EXTENSION}"; \
-        git clone "https://gerrit.wikimedia.org/r/mediawiki/extensions/${EXTENSION}" "extensions/${EXTENSION}"; \
-        EXTENSION_COMMIT_VAR="${EXTENSION^^}_COMMIT"; \
-        EXTENSION_COMMIT="${!EXTENSION_COMMIT_VAR}"; \
-        git -C "extensions/${EXTENSION}" checkout "${EXTENSION_COMMIT}"; \
-        git -C "extensions/${EXTENSION}" submodule update --init --recursive; \
-        rm -rf "extensions/${EXTENSION}/.git*"; \
-        find "extensions/${EXTENSION}" -name ".git*" -exec rm -rf {} +; \
-    done; \
-    \
-    git clone "https://github.com/ProfessionalWiki/WikibaseEdtf.git" "extensions/WikibaseEdtf"; \
-    git -C "extensions/WikibaseEdtf" checkout "${WIKIBASEEDTF_COMMIT}"; \
-    rm -rf "extensions/WikibaseEdtf/.git*"; \
-    \
-    git clone "https://github.com/ProfessionalWiki/WikibaseLocalMedia.git" "extensions/WikibaseLocalMedia"; \
-    git -C "extensions/WikibaseLocalMedia" checkout "${WIKIBASELOCALMEDIA_COMMIT}"; \
-    rm -rf "extensions/WikibaseLocalMedia/.git*"; \
-    \
-    rm -rf vendor && \
-    rm -rf composer.lock && \
-    ls -la && pwd && \
-    composer install --no-dev -vv -n
+    rm -rf "extensions/${EXTENSION}"; \
+    done;
+
+# Clone each extension repository and checkout the specific commit
+RUN IFS=',' read -ra EXTENSIONS <<< ${ALL_EXTENSIONS}; \
+    for EXTENSION in "${EXTENSIONS[@]}"; do \
+    git clone "https://gerrit.wikimedia.org/r/mediawiki/extensions/${EXTENSION}" "extensions/${EXTENSION}"; \
+    EXTENSION_COMMIT_VAR="${EXTENSION^^}_COMMIT"; \
+    EXTENSION_COMMIT="${!EXTENSION_COMMIT_VAR}"; \
+    git -C "extensions/${EXTENSION}" checkout "${EXTENSION_COMMIT}"; \
+    git -C "extensions/${EXTENSION}" submodule update --init --recursive; \
+    done;
+
+# Remove .git directories from each extension
+RUN IFS=',' read -ra EXTENSIONS <<< ${ALL_EXTENSIONS}; \
+    for EXTENSION in "${EXTENSIONS[@]}"; do \
+    rm -rf "extensions/${EXTENSION}/.git*"; \
+    find "extensions/${EXTENSION}" -name ".git*" -exec rm -rf {} +; \
+    done;
+
+# Clone the ProfessionalWiki/WikibaseEdtf extension
+RUN git clone "https://github.com/ProfessionalWiki/WikibaseEdtf.git" "extensions/WikibaseEdtf"; \
+    git -C "extensions/WikibaseEdtf" checkout master; \
+    rm -rf "extensions/WikibaseEdtf/.git*";
+
+# Clone the ProfessionalWiki/WikibaseLocalMedia extension
+RUN git clone "https://github.com/ProfessionalWiki/WikibaseLocalMedia.git" "extensions/WikibaseLocalMedia"; \
+    git -C "extensions/WikibaseLocalMedia" checkout master; \
+    rm -rf "extensions/WikibaseLocalMedia/.git*";
+
+# Clean up vendor and composer.lock, then install composer dependencies
+RUN rm -rf vendor && \
+    rm -rf composer.lock;
+
+RUN ls -la && pwd && \
+    composer install --no-dev -vv -n;
 
 
 # ###########################################################################

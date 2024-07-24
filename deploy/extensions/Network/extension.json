@@ -1,0 +1,7 @@
+{
+    "name": "Network",
+    "version": "1.0.0",
+    "author": "Unknown",
+    "git_path": "https://github.com/ProfessionalWiki/Network",
+    "description": "MediaWiki extension that allows for visualizing network relationships between pages"
+}

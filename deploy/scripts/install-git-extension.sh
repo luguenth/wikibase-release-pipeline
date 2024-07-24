@@ -11,8 +11,24 @@ while IFS=, read -r type source path version custom_name; do
         elif [ "$type" == "skin" ]; then
             dirname=skins
         fi
+
         echo "Installing $path:$version"
+
         cd $dirname
+
+        # Determine the target directory name
+        target_dir="$path"
+        if [ "$custom_name" != "" ]; then
+            target_dir="$custom_name"
+        fi
+
+        # Check if the directory already exists
+        if [ -d "$target_dir" ]; then
+            echo "Directory $target_dir already exists, skipping..."
+            cd ..
+            continue
+        fi
+
         branch=""
         if [ "$version" != "" ]; then
             branch="-b $version"
@@ -24,6 +40,7 @@ while IFS=, read -r type source path version custom_name; do
         else
             git clone "$path" $branch --recurse-submodules || true
         fi
+
         cd ..
     fi
 done < extensions.csv

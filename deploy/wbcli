@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# Function to make a request and get the wikibase_item
+get_wikibase_item() {
+    local extension_name=$1
+    local api_url="https://www.mediawiki.org/w/api.php?action=query&prop=pageprops&titles=Extension:${extension_name}&format=json"
+    local response=$(curl -s "${api_url}")
+    local wikibase_item=$(echo "${response}" | jq -r '.query.pages[].pageprops.wikibase_item')
+
+    if [ "$wikibase_item" == "null" ]; then
+        echo "Error: Unable to find wikibase_item for the extension: ${extension_name}"
+        exit 1
+    fi
+
+    echo "${wikibase_item}"
+}
+
+# Function to query Wikidata for additional information
+# Function to query Wikidata for additional information
+get_wikidata_info() {
+    local wikibase_item=$1
+    local api_url="https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${wikibase_item}&format=json"
+    local response=$(curl -s "${api_url}")
+
+    # Extract label
+    local label=$(echo "${response}" | jq -r '.entities[].labels.en.value')
+
+    # Extract description
+    local description=$(echo "${response}" | jq -r '.entities[].descriptions.en.value')
+
+    # Extract version (if available)
+    local version=$(echo "${response}" | jq -r '.entities[].claims.P348[0].mainsnak.datavalue.value // "1.0.0"')
+
+    # Extract authors (not directly available, placeholder)
+    local authors="Unknown"
+
+    # Extract git path (if available)
+    local git_path=$(echo "${response}" | jq -r '.entities[].claims.P1324[0].mainsnak.datavalue.value // "Unknown"')
+
+    echo "${label},${description},${version},${authors},${git_path}"
+}
+
+# Main function
+main() {
+    if [ "$1" != "add-extension" ] || [ -z "$2" ]; then
+        echo "Usage: wbcli add-extension <extension-url>"
+        exit 1
+    fi
+
+    # Extract the extension name from the URL
+    extension_url=$2
+    extension_name=$(echo "${extension_url}" | awk -F '/' '{print $NF}' | sed 's/Extension://')
+    echo "Extension name: ${extension_name}"
+
+    # Get the wikibase_item
+    wikibase_item=$(get_wikibase_item "${extension_name}")
+    echo "Wikibase item: ${wikibase_item}"
+
+    # Get the information from Wikidata
+    IFS=',' read -r label description version authors git_path <<< "$(get_wikidata_info "${wikibase_item}")"
+    echo "Label: ${label}, Description: ${description}, Version: ${version}, Authors: ${authors}, Git path: ${git_path}"
+    # Check if extensions folder exists
+    if [ ! -d "extensions" ]; then
+        read -p "The 'extensions' directory does not exist. Do you want to create it? (y/n) " create_ext_dir
+        if [ "${create_ext_dir}" != "y" ]; then
+            echo "Operation aborted."
+            exit 1
+        fi
+        mkdir extensions
+    fi
+
+    # Create the extension folder and files
+    extension_dir="extensions/${extension_name}"
+    mkdir -p "${extension_dir}"
+
+    # Create the PHP file
+    cat <<EOF > "${extension_dir}/${extension_name}.php"
+<?php
+// ${label} - ${description}
+EOF
+
+    # Create the extension.json file
+    cat <<EOF > "${extension_dir}/extension.json"
+{
+    "name": "${label}",
+    "version": "${version}",
+    "author": "${authors}",
+    "git_path": "${git_path}",
+    "description": "${description}"
+}
+EOF
+
+    echo "Extension '${label}' has been added successfully."
+}
+
+# Call the main function with all arguments
+main "$@"
