@@ -1,0 +1,17 @@
+# Use the official Composer image as the base image
+FROM composer:2
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the entrypoint script
+COPY updateScript.sh /usr/local/bin/entrypoint.sh
+
+# Make the entrypoint script executable
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+RUN install-php-extensions intl calendar
+# Switch to nobody user
+USER nobody
+# Command to keep the container running
+CMD ["/usr/local/bin/entrypoint.sh"]
