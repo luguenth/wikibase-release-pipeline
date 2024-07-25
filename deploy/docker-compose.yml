@@ -70,10 +70,22 @@ services:
   # B. EXTRA WIKIBASE SUITE SERVICES
   # --------------------------------------------------
 
-  # To disable Elasticsearch and use default MediaWiki search functionality remove
+
+# To disable Elasticsearch and use default MediaWiki search functionality remove
   # the elasticsearch service, and the MW_ELASTIC_* vars from wikibase_variables
   # at the top of this file.
-
+  elasticsearch:
+    image: wikibase/elasticsearch:1
+    restart: unless-stopped
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    environment:
+      discovery.type: single-node
+      ES_JAVA_OPTS: -Xms512m -Xmx512m -Dlog4j2.formatMsgNoLookups=true
+    healthcheck:
+      test: curl --silent --fail localhost:9200
+      interval: 10s
+      start_period: 2m
 
   wdqs:
     image: wikibase/wdqs:1
@@ -184,12 +196,12 @@ services:
   # --------------------------------------------------
 
   control:
-    build:
-      context: .
-      dockerfile: Dockerfile.control
+    image: composer:2
     restart: unless-stopped
     volumes:
       - app-data:/app
+      - ./updateScript.sh:/usr/bin/updateScript.sh
+    entrypoint: /usr/bin/updateScript.sh
     depends_on:
       wikibase:
         condition: service_healthy
