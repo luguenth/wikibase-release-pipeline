@@ -1,5 +1,4 @@
 name: wbs-deploy
-version: '3.8'
 
 services:
   # --------------------------------------------------
@@ -70,8 +69,7 @@ services:
   # B. EXTRA WIKIBASE SUITE SERVICES
   # --------------------------------------------------
 
-
-# To disable Elasticsearch and use default MediaWiki search functionality remove
+  # To disable Elasticsearch and use default MediaWiki search functionality remove
   # the elasticsearch service, and the MW_ELASTIC_* vars from wikibase_variables
   # at the top of this file.
   elasticsearch:
@@ -196,12 +194,14 @@ services:
   # --------------------------------------------------
 
   control:
-    image: composer:2
+    build:
+      context: .
+      dockerfile: Dockerfile.control
     restart: unless-stopped
     volumes:
       - app-data:/app
       - ./updateScript.sh:/usr/bin/updateScript.sh
-      - ./config/LocalSettings.php:/LocalSettings.php
+      - ./LocalSettingsExtra.d:/opt/LocalSettingsExtra.d
     entrypoint: /usr/bin/updateScript.sh
     depends_on:
       wikibase:

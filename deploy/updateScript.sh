@@ -1,9 +1,6 @@
 #!/bin/sh
-
-echo "test"
-su nobody
-echo "wfLoadExtension('SemanticMediaWiki');" >> LocalSettings.php
-composer require mediawiki/semantic-media-wiki
+composer require mediawiki/semantic-media-wiki:* --ignore-platform-req=php
+composer update --no-dev
 
 echo "done" 
 # Install Composer dependencies
@@ -11,6 +8,8 @@ echo "done"
 
 # Update Composer dependencies
 #composer update
+
+cp /opt/LocalSettingsExtra.d/* LocalSettings.d/
 
 # Keeping the container running
 tail -f /dev/null
