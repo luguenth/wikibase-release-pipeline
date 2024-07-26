@@ -1,0 +1,4 @@
+#!/bin/bash
+
+#This command is used to run the wikibase suite
+# It proxies every request to docker
