@@ -12,7 +12,7 @@ RUN install-php-extensions intl calendar
 COPY updateScript.sh /usr/local/bin/entrypoint.sh
 # Make the entrypoint script executable
 RUN chmod +x /usr/local/bin/entrypoint.sh
-RUN chown nobody:nobody /app
-USER nobody
+RUN chown root:root /app
+USER root
 # Command to keep the container running
 CMD ["/usr/local/bin/entrypoint.sh"]

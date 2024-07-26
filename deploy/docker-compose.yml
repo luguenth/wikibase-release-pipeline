@@ -201,7 +201,7 @@ services:
     volumes:
       - app-data:/app
       - ./updateScript.sh:/usr/bin/updateScript.sh
-      - ./LocalSettingsExtra.d:/opt/LocalSettingsExtra.d
+      - ./LocalSettingsExtra.d:/opt/mw/LocalSettingsExtra.d
     entrypoint: /usr/bin/updateScript.sh
     depends_on:
       wikibase:
