@@ -1,0 +1,7 @@
+{
+    "name": "Extension:Gadgets",
+    "version": "1.32.0",
+    "author": "Unknown",
+    "git_path": "https://gerrit.wikimedia.org/g/mediawiki/extensions/Gadgets",
+    "description": "MediaWiki extension"
+}

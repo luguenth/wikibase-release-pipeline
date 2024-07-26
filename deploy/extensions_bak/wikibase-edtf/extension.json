@@ -1,0 +1,8 @@
+{
+    "type": "extension",
+    "comment": "composer",
+    "source": "professional-wiki/wikibase-edtf",
+    "path": "^2.0.0",
+    "version": "",
+    "custom_name": ""
+}

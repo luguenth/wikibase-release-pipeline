@@ -1,0 +1,8 @@
+{
+    "type": "extension",
+    "comment": "composer",
+    "source": "mediawiki/semantic-result-formats",
+    "path": "~4.2",
+    "version": "",
+    "custom_name": ""
+}

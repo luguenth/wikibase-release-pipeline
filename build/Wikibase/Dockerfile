@@ -157,7 +157,11 @@ RUN set -x; \
     rm -rf vendor && \
     rm -rf composer.lock && \
     ls -la && pwd && \
+    \
+    composer require mediawiki/semantic-media-wiki --no-update \
     composer install --no-dev -vv -n
+
+
 
 
 # ###########################################################################

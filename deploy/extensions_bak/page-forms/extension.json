@@ -1,0 +1,8 @@
+{
+    "type": "extension",
+    "comment": "composer",
+    "source": "mediawiki/page-forms",
+    "path": "5.6.x",
+    "version": "",
+    "custom_name": ""
+}

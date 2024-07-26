@@ -1,0 +1,8 @@
+{
+    "type": "extension",
+    "comment": "git",
+    "source": "https://github.com/wikimedia/mediawiki-extensions-Wikibase.git",
+    "path": "REL1_39",
+    "version": "Wikibase",
+    "custom_name": ""
+}

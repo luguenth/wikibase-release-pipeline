@@ -1,9 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 
+echo "test"
 su nobody
-
+echo "wfLoadExtension('SemanticMediaWiki');" >> LocalSettings.php
 composer require mediawiki/semantic-media-wiki
 
+echo "done" 
 # Install Composer dependencies
 #composer install
 

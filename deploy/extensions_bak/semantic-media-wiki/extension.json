@@ -1,0 +1,8 @@
+{
+    "type": "extension",
+    "comment": "composer",
+    "source": "mediawiki/semantic-media-wiki",
+    "path": "*",
+    "version": "",
+    "custom_name": ""
+}
