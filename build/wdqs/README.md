@@ -197,7 +197,7 @@ Hooking into the internal filesystem can extend the functionality of this image.
 
 | File                         | Description                                                                                    |
 | ---------------------------- | ---------------------------------------------------------------------------------------------- |
-| `/wdqs/allowlist.txt`        | SPARQL endpoints allowed for federation                                                        |
+| `/wdqs/allowlist.txt`        | SPARQL endpoints allowed for federation. URLs added to this list should always point to the 'sparql' endpoint (e.g., `https://database.factgrid.de/sparql`) of the query service you want to federate with. Be sure to restart the container when adding new URLs to the list. |
 | `/wdqs/RWStore.properties`   | Properties for the service                                                                     |
 | `/templates/mwservices.json` | Template for MediaWiki services (populated and placed into `/wdqs/mwservices.json` at runtime) |
 
